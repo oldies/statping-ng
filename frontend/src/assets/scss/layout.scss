@@ -162,6 +162,23 @@ A {
   background-color: $container-color;
 }
 
+.container .logo {
+  width: 600px;
+  font-size: 3em;
+  margin: 0 auto;
+  margin-bottom: 3rem;
+}
+
+.container .logo a img {
+  vertical-align: middle !important;
+}
+
+.container .logo a,
+.container .logo a:hover
+{
+  text-decoration: none;
+}
+
 .login_container {
   border-radius: 5px;
   box-shadow: 0 .5rem 1rem rgba(0, 0, 0, 0.15) !important;

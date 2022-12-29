@@ -12,8 +12,12 @@
         </div>
       </div>
 
-      <div class="col-12 full-col-12">
-          <MessageBlock v-for="message in messages" v-bind:key="message.id" :message="message" />
+      <div class="col-12 full-col-12" v-for="message in messages">
+          <div class="alert alert-info" role="alert">
+            <h3>{{message.title}} <small>der Komponente <b>{{serviceName(message.service)}}</b></small></h3>
+            <i>in der Zeit vom <b>{{niceDate(message.start_on)}}</b> bis <b>{{niceDate(message.end_on)}}</b></i><br><br>
+            {{message.description}}
+          </div>
       </div>
 
       <div class="col-12 full-col-12">
@@ -29,15 +33,13 @@
 
       <Group v-for="group in groups" v-bind:key="group.id" :group=group />
 
-      <div class="col-12 full-col-12">
-          <div v-for="service in services" :ref="service.id" v-bind:key="service.id">
-              <ServiceBlock :service="service" />
-          </div>
-      </div>
-
     </div>
 </template>
-
+<style scoped>
+.list-group-item {
+  min-height: auto;
+  }
+</style>
 <script>
 import Api from "@/API";
 
@@ -80,7 +82,7 @@ export default {
           return this.$store.getters.core
         },
         messages() {
-            return this.$store.getters.messages.filter(m => this.inRange(m) && m.service === 0)
+            return this.$store.getters.messages
         },
         groups() {
             return this.$store.getters.groupsInOrder
@@ -111,6 +113,9 @@ export default {
         },
         inRange(message) {
             return this.isBetween(this.now(), message.start_on, message.start_on === message.end_on ? this.maxDate().toISOString() : message.end_on)
+        },
+        serviceName(id) {
+          return this.$store.getters.serviceById(id).name;
         }
     }
 }

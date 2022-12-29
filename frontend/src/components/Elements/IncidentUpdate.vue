@@ -6,7 +6,7 @@
                 <span aria-hidden="true">&times;</span>
             </button>
         </span>
-        <span class="d-block small">{{ago(update.created_at)}} ago</span>
+        <span class="d-block small">{{ago(update.created_at)}} alt</span>
     </div>
 </template>
 

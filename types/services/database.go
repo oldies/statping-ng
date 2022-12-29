@@ -77,6 +77,16 @@ func Find(id int64) (*Service, error) {
 	return srv, nil
 }
 
+func FindPermaLink(id string) (*Service, error) {
+	for _, service := range allServices {
+		if service.Permalink.String == id {
+			return service, nil
+		}
+	}
+
+	return nil, errors.Missing(&Service{}, id)
+}
+
 func all() []*Service {
 	var services []*Service
 	db.Find(&services)

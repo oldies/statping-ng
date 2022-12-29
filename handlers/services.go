@@ -19,7 +19,12 @@ type serviceOrder struct {
 func findService(r *http.Request) (*services.Service, error) {
 	vars := mux.Vars(r)
 	id := utils.ToInt(vars["id"])
+
 	servicer, err := services.Find(id)
+	if id == 0 && servicer == nil {
+		servicer, err = services.FindPermaLink(vars["id"])
+	}
+
 	if err != nil {
 		return nil, err
 	}
@@ -56,6 +61,16 @@ func apiServiceHandler(r *http.Request) interface{} {
 	}
 	srv = srv.UpdateStats()
 	return *srv
+}
+
+func apiServiceGetMessages(r *http.Request) interface{} {
+	srv, err := findService(r)
+	if err != nil {
+		return err
+	}
+	msgs := srv.Messages
+
+	return msgs
 }
 
 func apiCreateServiceHandler(w http.ResponseWriter, r *http.Request) {

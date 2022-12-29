@@ -26,7 +26,7 @@ var (
 
 const (
 	logFilePath   = "/logs/statping.log"
-	errorReporter = "https://518d5b04a52b4130bbbbd5b9e70cb7ba@sentry.statping.com/2"
+	errorReporter = "https://localhost/2"
 )
 
 func SentryInit(allow bool) {

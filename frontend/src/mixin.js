@@ -2,6 +2,7 @@ import Vue from "vue";
 const { startOfDay, startOfHour, startOfWeek, endOfMonth, endOfHour, startOfToday, startOfTomorrow, startOfYesterday, endOfYesterday, endOfTomorrow, endOfToday, endOfDay, startOfMonth, lastDayOfMonth, subSeconds, getUnixTime, fromUnixTime, differenceInSeconds, formatDistance, addMonths, addSeconds, isWithinInterval } = require('date-fns')
 import formatDistanceToNow from 'date-fns/formatDistanceToNow'
 import format from 'date-fns/format'
+import { de } from 'date-fns/locale'
 import parseISO from 'date-fns/parseISO'
 import isBefore from 'date-fns/isBefore'
 import isAfter from 'date-fns/isAfter'
@@ -28,7 +29,7 @@ export default Vue.mixin({
       return new Date.UTC(val)
     },
     ago(t1) {
-      return formatDistanceToNow(parseISO(t1))
+      return formatDistanceToNow(parseISO(t1), { locale: de })
     },
     daysInMonth(t1) {
       return lastDayOfMonth(t1)
@@ -49,7 +50,7 @@ export default Vue.mixin({
       return format(val, type)
     },
     niceDate(val) {
-      return format(parseISO(val), "EEEE, MMM do h:mma")
+      return format(parseISO(val), "EEEE, dd.MM.yyyy hh:mm", { locale: de })
     },
     parseISO(v) {
       return parseISO(v)

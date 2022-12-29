@@ -1,5 +1,8 @@
 <template>
     <div class="container col-md-7 col-sm-12 mt-md-5">
+
+      <Header/>
+
       <div v-if="!ready" class="row mt-5">
         <div class="col-12 text-center">
           <font-awesome-icon icon="circle-notch" size="3x" spin/>
@@ -10,78 +13,26 @@
       </div>
 
         <div v-if="ready && service" class="col-12 mb-4">
-            <span class="mt-3 mb-3 text-white d-md-none btn d-block d-md-none text-uppercase" :class="{'bg-success': service.online, 'bg-danger': !service.online}">
-                {{service.online ? $t('online') : $t('offline')}}
-            </span>
+            <ServiceTopStats v-if="loaded && topstat" :service="service"/>
 
-            <span class="mt-2 font-3">
-                <router-link to="/" class="text-black-50 text-decoration-none">{{core.name}}</router-link> - <span class="text-muted">{{service.name}}</span>
-                <span class="badge float-right d-none d-md-block text-uppercase" :class="{'bg-success': service.online, 'bg-danger': !service.online}">
-                    {{service.online ? $t('online') : $t('offline')}}
-                </span>
-            </span>
-
-            <ServiceTopStats v-if="loaded" :service="service"/>
+            <ServiceBlock v-if="loaded" :service="service" />
 
             <MessageBlock v-if="loaded" v-for="message in messagesInRange" v-bind:key="message.id" :message="message"/>
-
-            <div class="card text-black-50 bg-white mt-3">
-                <div class="card-header text-capitalize">Timeframe</div>
-                <div class="card-body pb-4">
-                    <div class="row">
-                        <div class="col">
-                            <flatPickr :disabled="!loaded" @on-change="reload" v-model="start_time" :config="{ wrap: true, allowInput: true, enableTime: true, dateFormat: 'Z', altInput: true, altFormat: 'Y-m-d h:i K', maxDate: this.endOf('today') }" type="text" class="form-control text-left" required />
-                            <small class="d-block">From {{this.format(new Date(start_time))}}</small>
-                        </div>
-                        <div class="col">
-                            <flatPickr :disabled="!loaded" @on-change="reload" v-model="end_time" :config="{ wrap: true, allowInput: true, enableTime: true, dateFormat: 'Z', altInput: true, altFormat: 'Y-m-d h:i K', maxDate: this.endOf('today') }" type="text" class="form-control text-left" required />
-                            <small class="d-block">To {{this.format(new Date(end_time))}}</small>
-                        </div>
-                        <div class="col">
-                            <select :disabled="!loaded" @change="chartHits(service)" v-model="group" class="form-control">
-                                <option value="1m">1 Minute</option>
-                                <option value="5m">5 Minutes</option>
-                                <option value="15m">15 Minute</option>
-                                <option value="30m">30 Minutes</option>
-                                <option value="1h">1 Hour</option>
-                                <option value="3h">3 Hours</option>
-                                <option value="6h">6 Hours</option>
-                                <option value="12h">12 Hours</option>
-                                <option value="24h">1 Day</option>
-                                <option value="168h">7 Days</option>
-                                <option value="360h">15 Days</option>
-                            </select>
-                            <small class="d-block d-md-none d-block">Increment Timeframe</small>
-                        </div>
-                    </div>
-
-                </div>
-            </div>
-
-            <div class="card text-black-50 bg-white mt-3 mb-3">
-                <div class="card-header text-capitalize">Service Latency</div>
-                <div v-if="loaded" class="card-body">
-                    <div class="row">
-                      <AdvancedChart :group="group" :updated="updated_chart" :start="start_time.toString()" :end="end_time.toString()" :service="service"/>
-                    </div>
-                  <div>
-                    <FailuresBarChart :service="service" :start="start_time.toString()" :end="end_time.toString()" :group="group"/>
-                  </div>
-
-                </div>
-              <div v-else class="row mt-3 mb-3">
-                <div class="col-12 text-center">
-                  <font-awesome-icon icon="circle-notch" size="3x" spin/>
-                </div>
-              </div>
-
-            </div>
 
             <div class="card text-black-50 bg-white mb-3">
                 <div class="card-header text-capitalize">Service Failures</div>
                 <div class="card-body">
                     <div class="service-chart-heatmap mt-5 mb-4">
                         <ServiceHeatmap :service="service"/>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card text-black-50 bg-white mb-3">
+                <div class="card-header text-capitalize">Service Incidents</div>
+                <div class="card-body">
+                    <div class="service-incidents">
+                      <IncidentsBlock :service="service"/>
                     </div>
                 </div>
             </div>
@@ -93,13 +44,15 @@
 
 <script>
   import Api from "../API"
+  const Header = () => import(/* webpackChunkName: "index" */ '@/components/Index/Header')
   const MessageBlock = () => import(/* webpackChunkName: "index" */ '@/components/Index/MessageBlock')
   const ServiceFailures = () => import(/* webpackChunkName: "service" */ '@/components/Service/ServiceFailures')
   const Checkin = () => import(/* webpackChunkName: "dashboard" */ '@/forms/Checkin')
+  const ServiceBlock = () => import(/* webpackChunkName: "index" */ '@/components/Service/ServiceBlock')
   const ServiceHeatmap = () => import(/* webpackChunkName: "service" */ '@/components/Service/ServiceHeatmap')
   const ServiceTopStats = () => import(/* webpackChunkName: "service" */ '@/components/Service/ServiceTopStats')
-  const AdvancedChart = () => import(/* webpackChunkName: "service" */ '@/components/Service/AdvancedChart')
   const FailuresBarChart = () => import(/* webpackChunkName: "service" */ '@/components/Service/FailuresBarChart')
+  const IncidentsBlock = () => import(/* webpackChunkName: "index" */ '@/components/Index/IncidentsBlock');
 
   import flatPickr from 'vue-flatpickr-component';
   import 'flatpickr/dist/flatpickr.css';
@@ -133,12 +86,14 @@
 export default {
     name: 'Service',
     components: {
+        Header,
       FailuresBarChart,
-      AdvancedChart,
+        ServiceBlock,
         ServiceTopStats,
         ServiceHeatmap,
         ServiceFailures,
         MessageBlock,
+        IncidentsBlock,
         Checkin,
         flatPickr
     },
@@ -152,6 +107,7 @@ export default {
             data: null,
             uptime_data: null,
             loaded: false,
+            topstat: false,
             messages: [],
             failures: [],
             start_time: this.beginningOf('day', this.nowSubtract(259200 * 3)),
@@ -468,4 +424,8 @@ export default {
 </script>
 <!-- Add "scoped" attribute to limit CSS to this component only -->
 <style scoped>
+.container {
+  box-shadow:none !important;
+  background-color:transparent;
+}
 </style>

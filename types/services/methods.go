@@ -242,6 +242,7 @@ func SelectAllServices(start bool) (map[int64]*Service, error) {
 func (s *Service) UpdateStats() *Service {
 	s.Online24Hours = s.OnlineDaysPercent(1)
 	s.Online7Days = s.OnlineDaysPercent(7)
+	s.Online365Days = s.OnlineDaysPercent(365)
 	s.AvgResponse = s.AvgTime()
 	s.FailuresLast24Hours = s.FailuresSince(utils.Now().Add(-time.Hour * 24)).Count()
 
