@@ -36,6 +36,7 @@ jobs:
         run: |
           go mod download
           go mod verify
+          go get -t github.com/wellington/go-libsass
           make test-deps
 
       - name: Build Frontend Statping
