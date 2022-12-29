@@ -43,7 +43,11 @@ jobs:
         env:
           VERSION: ${{ env.VERSION }}
           COMMIT: ${{ github.sha }}
-        run: make clean generate compile
+        run: |
+          go get -t github.com/gomarkdown/markdown
+          go get -t github.com/tdewolff/minify/v2
+          make clean generate
+          make compile
 
       - name: Upload Compiled Frontend (rice-box.go)
         uses: actions/upload-artifact@v1
