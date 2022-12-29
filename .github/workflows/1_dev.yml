@@ -34,6 +34,8 @@ jobs:
 
       - name: Download Go mods
         run: |
+          go install github.com/GeertJohan/go.rice@latest
+          go install github.com/GeertJohan/go.rice/rice@latest
           go mod download
           go mod verify
           go get -t github.com/wellington/go-libsass
